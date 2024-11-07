@@ -1,3 +1,4 @@
+# Node.js Application Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,6 +14,10 @@ spec:
     metadata:
       labels:
         app: nodeapp
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "3000"
     spec:
       imagePullSecrets:
         - name: my-registry-key
@@ -28,6 +33,9 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
+          env:
+            - name: MONGO_URL
+              value: "mongodb://admin:password@mongodb:27017/my-db" # MongoDB connection string
           livenessProbe:
             httpGet:
               path: /health
@@ -42,6 +50,7 @@ spec:
             periodSeconds: 10
 
 ---
+# Node.js Application Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -56,4 +65,53 @@ spec:
     - protocol: TCP
       port: 3000
       targetPort: 3000
+
+---
+# MongoDB Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  labels:
+    app: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:latest
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: "admin"
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: "password"
+          volumeMounts:
+            - name: mongo-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongo-storage
+          emptyDir: {}
+
+---
+# MongoDB Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  labels:
+    app: mongodb
+spec:
+  ports:
+    - port: 27017
+  selector:
+    app: mongodb
 
