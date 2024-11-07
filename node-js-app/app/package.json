@@ -1,0 +1,18 @@
+{
+  "name": "developing-with-docker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Nana Janashia",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "express": "^4.21.1",
+    "mongodb": "^3.7.4",
+    "prom-client": "^13.1.0"
+  }
+}
