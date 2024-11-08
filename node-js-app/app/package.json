@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "author": "Nana Janashia",
+  "author": "Jayce",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.20.3",
@@ -16,3 +16,4 @@
     "prom-client": "^13.1.0"
   }
 }
+

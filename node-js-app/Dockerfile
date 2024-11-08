@@ -1,17 +1,21 @@
-FROM node:13-alpine
+# Use Node 18-alpine as the base image
+FROM node:18-alpine
 
-ENV MONGO_DB_USERNAME=admin \
-    MONGO_DB_PWD=password
-
-RUN mkdir -p /home/app
-
-COPY ./app /home/app
-
-# set default dir so that next commands executes in /home/app dir
+# Create the working directory
 WORKDIR /home/app
 
-# will execute npm install in /home/app because of WORKDIR
+# Copy package.json and package-lock.json first to leverage Docker caching
+COPY ./app/package*.json ./
+
+# Install dependencies
 RUN npm install
 
-# no need for /home/app/server.js because of WORKDIR
+# Copy the rest of the app files
+COPY ./app /home/app
+
+# Expose the app’s port
+EXPOSE 3000
+
+# Set the command to start the app
 CMD ["node", "server.js"]
+

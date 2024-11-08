@@ -58,6 +58,14 @@ app.get('/profile-picture', function (req, res) {
   res.end(img, 'binary');
 });
 
+app.get('/health', function (req, res) {
+  res.status(200).send('Healthy');
+});
+
+app.get('/readiness', function (req, res) {
+  res.status(200).send('Ready');
+});
+
 // use when starting application locally with node command
 let mongoUrlLocal = "mongodb://admin:password@0.0.0.0:27017";
 
@@ -117,7 +125,6 @@ app.get('/get-profile', function (req, res) {
   });
 });
 
-app.listen(3000, function () {
+app.listen(3000, '0.0.0.0', function () {
   console.log("app listening on port 3000!");
 });
-
