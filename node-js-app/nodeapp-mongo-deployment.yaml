@@ -1,4 +1,4 @@
-# Node.js Application Deployment
+# Node.js App Deployment and Service
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,18 +14,18 @@ spec:
     metadata:
       labels:
         app: nodeapp
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/metrics"
-        prometheus.io/port: "3000"
     spec:
       imagePullSecrets:
         - name: my-registry-key
       containers:
         - name: nodeapp
-          image: dakuchi/demo-app:1.1
+          image: dakuchi/demo-app:deployk8s
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
+          #env:
+          #  - name: MONGO_URL
+          #    value: "mongodb://admin:password@mongodb:27017/my-db"
           resources:
             requests:
               memory: "64Mi"
@@ -33,24 +33,22 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
-          env:
-            - name: MONGO_URL
-              value: "mongodb://admin:password@mongodb:27017/my-db" # MongoDB connection string
           livenessProbe:
             httpGet:
               path: /health
               port: 3000
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
+            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /readiness
               port: 3000
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
+            failureThreshold: 3
 
 ---
-# Node.js Application Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -67,7 +65,7 @@ spec:
       targetPort: 3000
 
 ---
-# MongoDB Deployment
+# MongoDB Deployment and Service
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -86,7 +84,7 @@ spec:
     spec:
       containers:
         - name: mongodb
-          image: mongo:latest
+          image: mongo:4.2
           ports:
             - containerPort: 27017
           env:
@@ -94,15 +92,15 @@ spec:
               value: "admin"
             - name: MONGO_INITDB_ROOT_PASSWORD
               value: "password"
-          volumeMounts:
-            - name: mongo-storage
-              mountPath: /data/db
-      volumes:
-        - name: mongo-storage
-          emptyDir: {}
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
 
 ---
-# MongoDB Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -110,8 +108,11 @@ metadata:
   labels:
     app: mongodb
 spec:
-  ports:
-    - port: 27017
+  type: ClusterIP
   selector:
     app: mongodb
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
 
