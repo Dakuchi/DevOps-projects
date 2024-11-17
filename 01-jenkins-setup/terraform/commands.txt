@@ -1,0 +1,20 @@
+# get vpc id
+aws ec2 describe-vpcs --filters "Name=tag:Name, Values=jenkins*"
+
+# get subnet id
+aws ec2 describe-subnets --filters "Name=vpc-id,Values=vpc-0bbe6c531595129e0"
+
+# get running instance
+aws ec2 describe-instances --filter "Name=tag:Name,Values=jenkins-controller" --query 'Reservations[].Instances[?State.Name==`running`].PublicIpAddress' --output text
+
+# build AMI
+packer build -var "efs_mount_point=fs-06c982131804bea19.efs.ap-southeast-1.amazonaws.com" jenkins-controller.pkr.hcl
+
+========================== Copy files =====================================
+
+ssh jayce@34.87.188.70 'find /home/jayce/aws_projects/devops-projects/01-jenkins-setup -type f ! -path "*/.terraform/*" ! -name "*.zip" ! -name "*.tar.gz"' | \
+    xargs -I {} scp jayce@34.87.188.70:{} /home/jayce/project/DevOps-Project
+
+
+
+rsync -avz --exclude='.terraform/' --exclude='*.zip' --exclude='*.tar.gz' jayce@34.87.188.70:/home/jayce/aws_projects/devops-projects/01-jenkins-setup /home/jayce/project/DevOps-Project
