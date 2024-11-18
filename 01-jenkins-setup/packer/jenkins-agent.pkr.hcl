@@ -28,17 +28,17 @@ locals {
 }
 
 source "amazon-ebs" "jenkins" {
-  ami_name             = local.app_name
-  instance_type        = "t2.micro"
-  region               = "ap-southeast-1"
-  availability_zone    = "ap-southeast-1a"
-  source_ami           = var.ami_id
-  vpc_id               = var.vpc_id
-  subnet_id            = var.subnet_id
-  security_group_id    = var.security_group_ids
+  ami_name                    = local.app_name
+  instance_type               = "t2.micro"
+  region                      = "ap-southeast-1"
+  availability_zone           = "ap-southeast-1a"
+  source_ami                  = var.ami_id
+  vpc_id                      = var.vpc_id
+  subnet_id                   = var.subnet_id
+  security_group_id           = var.security_group_ids
   associate_public_ip_address = true
-  ssh_username         = "ubuntu"
-  iam_instance_profile = "jenkins-instance-profile"
+  ssh_username                = "ubuntu"
+  iam_instance_profile        = "jenkins-instance-profile"
   tags = {
     Env  = "dev"
     Name = "${local.app_name}"
