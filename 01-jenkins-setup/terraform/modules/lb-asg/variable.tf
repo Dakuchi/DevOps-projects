@@ -14,6 +14,10 @@ variable "environment" {
   description = "The environment name for the resources."
 }
 
+variable "acm_certificate_arn" {
+  description = "The arn of ACM certificate."
+}
+
 variable "vpc_id" {
   description = "The ID of the VPC to use for the resources."
 }

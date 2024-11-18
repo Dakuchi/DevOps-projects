@@ -1,9 +1,10 @@
 resource "aws_security_group" "alb_sg" {
   name_prefix = "alb-sg"
   vpc_id      = var.vpc_id
+
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -26,6 +27,7 @@ resource "aws_lb" "jenkins" {
   load_balancer_type = "application"
   subnets            = var.subnets
   security_groups    = [aws_security_group.alb_sg.id]
+
   tags = {
     Environment = var.environment
     Terraform   = "true"
@@ -35,6 +37,7 @@ resource "aws_lb" "jenkins" {
 resource "aws_security_group" "instance_sg" {
   name_prefix = "jenkins-controller-sg"
   vpc_id      = var.vpc_id
+
   ingress {
     from_port   = 22
     to_port     = 22
@@ -61,7 +64,6 @@ resource "aws_security_group" "instance_sg" {
   }
 }
 
-
 resource "aws_lb_target_group" "jenkins" {
   name_prefix = "jks-lb"
   port        = 8080
@@ -85,10 +87,14 @@ resource "aws_lb_target_group" "jenkins" {
   }
 }
 
+# Attach an ACM Certificate for HTTPS
 resource "aws_lb_listener" "jenkins" {
   load_balancer_arn = aws_lb.jenkins.arn
-  port              = 80
-  protocol          = "HTTP"
+  port              = 443
+  protocol          = "HTTPS"
+
+  ssl_policy      = "ELBSecurityPolicy-2016-08"
+  certificate_arn = var.acm_certificate_arn
 
   default_action {
     target_group_arn = aws_lb_target_group.jenkins.arn
@@ -130,12 +136,11 @@ resource "aws_autoscaling_group" "jenkins" {
     ignore_changes        = [load_balancers, target_group_arns]
   }
 
-  # instance_refresh {
-  #   strategy = "Rolling"
-  #   triggers = ["launch_template"]
-  # }
+  #instance_refresh {
+  #  strategy = "Rolling"
+  #  triggers = ["launch_template"]
+  #}
 }
-
 
 resource "aws_autoscaling_attachment" "jenkins" {
   autoscaling_group_name = aws_autoscaling_group.jenkins.name
