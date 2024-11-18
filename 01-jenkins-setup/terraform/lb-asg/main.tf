@@ -17,11 +17,12 @@ terraform {
   }
 }
 module "lb-asg" {
-  source        = "../modules/lb-asg"
-  subnets       = ["subnet-03e9c2019761f5aa2", "subnet-0fa58941cf0f7359e", "subnet-0522d7eee787de945"]
-  ami_id        = "ami-083dc2687cf2a1151"
-  instance_type = "t2.micro"
-  key_name      = "jenkins-key"
-  environment   = "dev"
-  vpc_id        = "vpc-0bbe6c531595129e0"
+  source              = "../modules/lb-asg"
+  subnets             = ["subnet-03e9c2019761f5aa2", "subnet-0fa58941cf0f7359e", "subnet-0522d7eee787de945"]
+  ami_id              = "ami-083dc2687cf2a1151"
+  instance_type       = "t2.micro"
+  key_name            = "jenkins-key"
+  acm_certificate_arn = "arn:aws:acm:ap-southeast-1:935160191755:certificate/2333063d-686d-470c-acfa-8f6bfff6f7fb"
+  environment         = "dev"
+  vpc_id              = "vpc-0bbe6c531595129e0"
 }
