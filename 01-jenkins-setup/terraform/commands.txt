@@ -2,10 +2,24 @@
 aws ec2 describe-vpcs --filters "Name=tag:Name, Values=jenkins*"
 
 # get subnet id
-aws ec2 describe-subnets --filters "Name=vpc-id,Values=vpc-0bbe6c531595129e0"
+aws ec2 describe-subnets --filters "Name=vpc-id,Values=vpc-0bbe6c531595129e0" --query Subnets[].SubnetId
+
+# get IGW
+aws ec2 describe-internet-gateways --filters "Name=tag:Name,Values=jenkins-igw"
+
+# get routing table
+aws ec2 describe-route-tables --filters "Name=tag:Name,Values=jenkins-main-rtb"
 
 # get running instance
 aws ec2 describe-instances --filter "Name=tag:Name,Values=jenkins-controller" --query 'Reservations[].Instances[?State.Name==`running`].PublicIpAddress' --output text
+
+# get ACM certificate
+
+# get lockId
+aws dynamodb get-item --table-name terraform-lock --key '{"LockID": {"S": "dakuchi-bucket/terraform/state/jenkins-setup/vpc_subnet/terraform.tfstate"}}'
+
+# delete lockId
+aws dynamodb delete-item --table-name terraform-lock --key '{"LockID": {"S": "dakuchi-bucket/terraform/state/jenkins-setup/vpc_subnet/terraform.tfstate"}}'
 
 # build AMI
 packer build -var "efs_mount_point=fs-06c982131804bea19.efs.ap-southeast-1.amazonaws.com" jenkins-controller.pkr.hcl
