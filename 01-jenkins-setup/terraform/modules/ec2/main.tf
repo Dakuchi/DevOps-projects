@@ -20,13 +20,11 @@ resource "aws_security_group" "jenkins-agent" {
 
 
 resource "aws_instance" "example" {
-  count = var.instance_count
-
+  count                  = var.instance_count
   ami                    = var.ami_id
   instance_type          = var.instance_type
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.jenkins-agent.id]
-
   tags = {
     Name = "${var.instance_name}-instance-${count.index + 1}"
   }

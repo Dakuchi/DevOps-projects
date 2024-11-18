@@ -21,7 +21,7 @@ module "lb-asg" {
   subnets       = ["subnet-03e9c2019761f5aa2", "subnet-0fa58941cf0f7359e", "subnet-0522d7eee787de945"]
   ami_id        = "ami-083dc2687cf2a1151"
   instance_type = "t2.micro"
-  key_name      = "my-pc"
+  key_name      = "jenkins-key"
   environment   = "dev"
   vpc_id        = "vpc-0bbe6c531595129e0"
 }
