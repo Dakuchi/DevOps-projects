@@ -18,8 +18,8 @@ terraform {
 }
 
 # Create ssh key on aws ssm
-module "ssh_key" {
-  source           = "../modules/ssh-key"
+module "ssm" {
+  source           = "../modules/ssm"
   private_key_path = "../../id_rsa"
   public_key_path  = "../../id_rsa.pub"
 }
